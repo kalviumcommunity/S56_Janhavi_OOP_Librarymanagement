@@ -1,15 +1,15 @@
-# Library Management System
+# Library Management System 📔
 
-## Overview
+## Overview 📄
 The **Library Management System** is a console-based application designed to manage a library's inventory and facilitate borrowing and returning books. Developed in C++, this project serves as a practical demonstration of key Object-Oriented Programming (OOP) principles, including encapsulation, abstraction, inheritance, and polymorphism. It provides a user-friendly interface for performing essential library management tasks through a text-based system.
 
-## Objectives
+## Objectives 🎯
 The primary goal of this project is to create a functional, easy-to-use system that allows users to efficiently manage a library's collection. The application is designed to handle common library operations, making it an ideal example of how OOP principles can be applied to solve real-world problems.
 
 ## Language
 - **C++**
 
-## Features
+## Features 🧾
 
 ### Book Management
 - **Add New Books**: Allows users to add new books to the library's collection, including details such as title and author.
@@ -22,7 +22,7 @@ The primary goal of this project is to create a functional, easy-to-use system t
 ### Status Display
 - **View Book Status**: Displays the current status of all books, showing which are available and which are currently borrowed.
 
-## Use Cases
+## Use Cases 📕
 
 1. **Add Book**  
    - *Description*: A user adds a new book to the library’s collection.
