@@ -2,46 +2,41 @@
 #include <string>
 using namespace std;
 
-const int MAX_BOOKS = 25;  // Maximum number of books the library can hold
+const int MAX_BOOKS = 100;  // Maximum number of books the library can hold
 
 // Book class definition
 class Book {
-    // Private data members
     string title;
     string author;
     bool isBorrowed;
 
 public:
-    // Constructor
     Book() : title(""), author(""), isBorrowed(false) {}
 
     Book(string t, string a) : title(t), author(a), isBorrowed(false) {}
 
-    // Member function to borrow the book
     void borrowBook() {
-        if (!isBorrowed) {
-            isBorrowed = true;
-            cout << title << " has been borrowed.\n";
+        if (!this->isBorrowed) {
+            this->isBorrowed = true;
+            cout << this->title << " has been borrowed.\n";
         } else {
-            cout << title << " is already borrowed.\n";
+            cout << this->title << " is already borrowed.\n";
         }
     }
 
-    // Member function to return the book
     void returnBook() {
-        if (isBorrowed) {
-            isBorrowed = false;
-            cout << title << " has been returned.\n";
+        if (this->isBorrowed) {
+            this->isBorrowed = false;
+            cout << this->title << " has been returned.\n";
         } else {
-            cout << title << " was not borrowed.\n";
+            cout << this->title << " was not borrowed.\n";
         }
     }
 
-    // Member function to display book details
     void displayDetails() const {
-        if (!title.empty()) {
-            cout << "Title: " << title << ", Author: " << author;
-            if (isBorrowed) {
+        if (!this->title.empty()) {
+            cout << "Title: " << this->title << ", Author: " << this->author;
+            if (this->isBorrowed) {
                 cout << " (Borrowed)\n";
             } else {
                 cout << " (Available)\n";
@@ -49,43 +44,37 @@ public:
         }
     }
 
-    // Getter function to access the title (used in Library class)
     string getTitle() const {
-        return title;
+        return this->title;
     }
 
-    // Function to check if a book exists
     bool isBookExists() const {
-        return !title.empty();
+        return !this->title.empty();
     }
 };
 
 // Library class definition
 class Library {
-    // Private data members
     Book books[MAX_BOOKS];
     int bookCount;
 
 public:
-    // Constructor to initialize the library with no books
     Library() : bookCount(0) {}
 
-    // Member function to add a book to the library
     void addBook(string title, string author) {
-        if (bookCount < MAX_BOOKS) {
-            books[bookCount] = Book(title, author);
-            bookCount++;
+        if (this->bookCount < MAX_BOOKS) {
+            this->books[this->bookCount] = Book(title, author);
+            this->bookCount++;
             cout << "Book added: " << title << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
         }
     }
 
-    // Member function to remove a book from the library by title
     void removeBook(string title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i].getTitle() == title) {
-                books[i] = Book();  // Mark this book slot as empty
+        for (int i = 0; i < this->bookCount; ++i) {
+            if (this->books[i].getTitle() == title) {
+                this->books[i] = Book();
                 cout << "Book removed: " << title << "\n";
                 return;
             }
@@ -93,30 +82,27 @@ public:
         cout << "Book not found: " << title << "\n";
     }
 
-    // Member function to display all books in the library
     void displayBooks() const {
         cout << "Library Collection:\n";
-        for (int i = 0; i < bookCount; ++i) {
-            books[i].displayDetails();
+        for (int i = 0; i < this->bookCount; ++i) {
+            this->books[i].displayDetails();
         }
     }
 
-    // Member function to borrow a book by title
     void borrowBook(string title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i].getTitle() == title && books[i].isBookExists()) {
-                books[i].borrowBook();
+        for (int i = 0; i < this->bookCount; ++i) {
+            if (this->books[i].getTitle() == title && this->books[i].isBookExists()) {
+                this->books[i].borrowBook();
                 return;
             }
         }
         cout << "Book not found: " << title << "\n";
     }
 
-    // Member function to return a book by title
     void returnBook(string title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i].getTitle() == title && books[i].isBookExists()) {
-                books[i].returnBook();
+        for (int i = 0; i < this->bookCount; ++i) {
+            if (this->books[i].getTitle() == title && this->books[i].isBookExists()) {
+                this->books[i].returnBook();
                 return;
             }
         }
@@ -127,7 +113,7 @@ public:
 int main() {
     Library myLibrary;
     int choice;
-
+    
     do {
         cout << "\nLibrary Management System\n";
         cout << "1. Add Book\n";
@@ -144,7 +130,7 @@ int main() {
         switch (choice) {
             case 1:
                 cout << "Enter book title: ";
-                cin.ignore();  // To ignore the leftover newline character from previous input
+                cin.ignore(); 
                 getline(cin, title);
                 cout << "Enter author name: ";
                 getline(cin, author);
