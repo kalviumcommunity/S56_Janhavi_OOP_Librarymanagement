@@ -9,13 +9,25 @@ class Book {
     string title;
     string author;
     bool isBorrowed;
+    
+    // Static variable to count the number of Book instances
+    static int bookCount;
 
 public:
     // Default constructor
-    Book() : title(""), author(""), isBorrowed(false) {}
+    Book() : title(""), author(""), isBorrowed(false) {
+        ++bookCount;
+    }
 
     // Parameterized constructor
-    Book(string t, string a) : title(t), author(a), isBorrowed(false) {}
+    Book(string t, string a) : title(t), author(a), isBorrowed(false) {
+        ++bookCount;
+    }
+
+    // Destructor
+    ~Book() {
+        --bookCount;
+    }
 
     // Function to borrow a book
     void borrowBook() {
@@ -54,13 +66,24 @@ public:
     bool isBookExists() const {
         return !this->title.empty();
     }
+
+    // Static function to get the count of Book instances
+    static int getBookCount() {
+        return bookCount;
+    }
 };
+
+// Initialize static variable
+int Book::bookCount = 0;
 
 // Library class definition
 class Library {
-    Book** books;    // Pointer to an array of Book pointers
+    Book** books;    
     int bookCount;
     int maxBooks;
+
+    // Static variable to count the number of Library instances
+    static int libraryCount;
 
 public:
     // Default constructor
@@ -69,6 +92,7 @@ public:
         for (int i = 0; i < this->maxBooks; ++i) {
             this->books[i] = nullptr;
         }
+        ++libraryCount;
     }
 
     // Destructor
@@ -77,6 +101,7 @@ public:
             delete this->books[i];  // Free each allocated Book object
         }
         delete[] this->books;  // Free the array of Book pointers
+        --libraryCount;
     }
 
     // Function to add a book to the library
@@ -136,7 +161,15 @@ public:
         }
         cout << "Book not found: " << title << "\n";
     }
+
+    // Static function to get the count of Library instances
+    static int getLibraryCount() {
+        return libraryCount;
+    }
 };
+
+// Initialize static variable
+int Library::libraryCount = 0;
 
 int main() {
     int numBooks;
@@ -266,6 +299,10 @@ int main() {
                 cout << "Invalid choice! Please try again.\n";
         }
     } while (choice != 6);
+
+    // Display the number of Book and Library instances
+    cout << "\nTotal number of books created: " << Book::getBookCount() << endl;
+    cout << "Total number of libraries created: " << Library::getLibraryCount() << endl;
 
     // Free the dynamically allocated Library object
     delete myLibrary;
