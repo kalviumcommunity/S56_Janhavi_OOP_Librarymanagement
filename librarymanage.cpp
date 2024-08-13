@@ -84,6 +84,14 @@ public:
     // Function to check if the book exists (is not empty)
     bool isBookExists() const {
         return !title.empty();
+    // Function to get the title of the book
+    string getTitle() const {
+        return this->title;
+    }
+
+    // Function to check if the book exists (is not empty)
+    bool isBookExists() const {
+        return !this->title.empty();
     }
 
     // Static function to get the count of Book instances
