@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-const int MAX_BOOKS = 100;  // Maximum number of books the library can hold
+const int MAX_BOOKS = 100;
 
 // Book class definition
 class Book {
@@ -11,45 +11,48 @@ class Book {
     bool isBorrowed;
 
 public:
+    // Default constructor
     Book() : title(""), author(""), isBorrowed(false) {}
 
+    // Parameterized constructor
     Book(string t, string a) : title(t), author(a), isBorrowed(false) {}
 
+    // Function to borrow a book
     void borrowBook() {
-        if (!this->isBorrowed) {
-            this->isBorrowed = true;
-            cout << this->title << " has been borrowed.\n";
+        if (!isBorrowed) {
+            isBorrowed = true;
+            cout << title << " has been borrowed.\n";
         } else {
-            cout << this->title << " is already borrowed.\n";
+            cout << title << " is already borrowed.\n";
         }
     }
 
+    // Function to return a book
     void returnBook() {
-        if (this->isBorrowed) {
-            this->isBorrowed = false;
-            cout << this->title << " has been returned.\n";
+        if (isBorrowed) {
+            isBorrowed = false;
+            cout << title << " has been returned.\n";
         } else {
-            cout << this->title << " was not borrowed.\n";
+            cout << title << " was not borrowed.\n";
         }
     }
 
+    // Function to display book details
     void displayDetails() const {
-        if (!this->title.empty()) {
-            cout << "Title: " << this->title << ", Author: " << this->author;
-            if (this->isBorrowed) {
-                cout << " (Borrowed)\n";
-            } else {
-                cout << " (Available)\n";
-            }
+        if (!title.empty()) {
+            cout << "Title: " << title << ", Author: " << author;
+            cout << (isBorrowed ? " (Borrowed)\n" : " (Available)\n");
         }
     }
 
+    // Function to get the title of the book
     string getTitle() const {
-        return this->title;
+        return title;
     }
 
+    // Function to check if the book exists (is not empty)
     bool isBookExists() const {
-        return !this->title.empty();
+        return !title.empty();
     }
 };
 
@@ -59,22 +62,25 @@ class Library {
     int bookCount;
 
 public:
+    // Default constructor
     Library() : bookCount(0) {}
 
+    // Function to add a book to the library
     void addBook(string title, string author) {
-        if (this->bookCount < MAX_BOOKS) {
-            this->books[this->bookCount] = Book(title, author);
-            this->bookCount++;
+        if (bookCount < MAX_BOOKS) {
+            books[bookCount] = Book(title, author);
+            bookCount++;
             cout << "Book added: " << title << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
         }
     }
 
+    // Function to remove a book from the library
     void removeBook(string title) {
-        for (int i = 0; i < this->bookCount; ++i) {
-            if (this->books[i].getTitle() == title) {
-                this->books[i] = Book();
+        for (int i = 0; i < bookCount; ++i) {
+            if (books[i].getTitle() == title) {
+                books[i] = Book();
                 cout << "Book removed: " << title << "\n";
                 return;
             }
@@ -82,27 +88,30 @@ public:
         cout << "Book not found: " << title << "\n";
     }
 
+    // Function to display all books in the library
     void displayBooks() const {
         cout << "Library Collection:\n";
-        for (int i = 0; i < this->bookCount; ++i) {
-            this->books[i].displayDetails();
+        for (int i = 0; i < bookCount; ++i) {
+            books[i].displayDetails();
         }
     }
 
+    // Function to borrow a book from the library
     void borrowBook(string title) {
-        for (int i = 0; i < this->bookCount; ++i) {
-            if (this->books[i].getTitle() == title && this->books[i].isBookExists()) {
-                this->books[i].borrowBook();
+        for (int i = 0; i < bookCount; ++i) {
+            if (books[i].getTitle() == title && books[i].isBookExists()) {
+                books[i].borrowBook();
                 return;
             }
         }
         cout << "Book not found: " << title << "\n";
     }
 
+    // Function to return a book to the library
     void returnBook(string title) {
-        for (int i = 0; i < this->bookCount; ++i) {
-            if (this->books[i].getTitle() == title && this->books[i].isBookExists()) {
-                this->books[i].returnBook();
+        for (int i = 0; i < bookCount; ++i) {
+            if (books[i].getTitle() == title && books[i].isBookExists()) {
+                books[i].returnBook();
                 return;
             }
         }
@@ -111,9 +120,83 @@ public:
 };
 
 int main() {
+    int numBooks;
+
+    cout << "Enter the number of books you want to add to the Library: ";
+    cin >> numBooks;
+    cin.ignore();
+
+    // Array of Book objects
+    Book myBooks[numBooks];
+
+    // Taking input from the user for each book
+    for (int i = 0; i < numBooks; ++i) {
+        string title, author;
+
+        cout << "\nEnter title for book " << i + 1 << ": ";
+        getline(cin, title);
+        cout << "Enter author for book " << i + 1 << ": ";
+        getline(cin, author);
+
+        myBooks[i] = Book(title, author);
+    }
+
+    // Display details of each book in the array
+    cout << "\nDisplaying details of books in the array:\n";
+    for (int i = 0; i < numBooks; ++i) {
+        myBooks[i].displayDetails();
+    }
+
+    // Borrow a book from the array
+    cout << "\nEnter the title of the book you want to borrow: ";
+    string borrowTitle;
+    getline(cin, borrowTitle);
+
+    bool bookFound = false;
+    for (int i = 0; i < numBooks; ++i) {
+        if (myBooks[i].getTitle() == borrowTitle) {
+            myBooks[i].borrowBook();
+            bookFound = true;
+            break;
+        }
+    }
+    if (!bookFound) {
+        cout << "Book not found in the array.\n";
+    }
+
+    // Display details again to see the updated status
+    cout << "\nDisplaying details after borrowing a book:\n";
+    for (int i = 0; i < numBooks; ++i) {
+        myBooks[i].displayDetails();
+    }
+
+    // Return the borrowed book
+    cout << "\nEnter the title of the book you want to return: ";
+    string returnTitle;
+    getline(cin, returnTitle);
+
+    bookFound = false;
+    for (int i = 0; i < numBooks; ++i) {
+        if (myBooks[i].getTitle() == returnTitle) {
+            myBooks[i].returnBook();
+            bookFound = true;
+            break;
+        }
+    }
+    if (!bookFound) {
+        cout << "Book not found in the array.\n";
+    }
+
+    // Display details again to see the final status
+    cout << "\nDisplaying details after returning the book:\n";
+    for (int i = 0; i < numBooks; ++i) {
+        myBooks[i].displayDetails();
+    }
+
+    // Library management system menu
     Library myLibrary;
     int choice;
-    
+
     do {
         cout << "\nLibrary Management System\n";
         cout << "1. Add Book\n";
@@ -124,13 +207,13 @@ int main() {
         cout << "6. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
+        cin.ignore();
 
         string title, author;
 
         switch (choice) {
             case 1:
                 cout << "Enter book title: ";
-                cin.ignore(); 
                 getline(cin, title);
                 cout << "Enter author name: ";
                 getline(cin, author);
@@ -138,19 +221,16 @@ int main() {
                 break;
             case 2:
                 cout << "Enter book title to remove: ";
-                cin.ignore();
                 getline(cin, title);
                 myLibrary.removeBook(title);
                 break;
             case 3:
                 cout << "Enter book title to borrow: ";
-                cin.ignore();
                 getline(cin, title);
                 myLibrary.borrowBook(title);
                 break;
             case 4:
                 cout << "Enter book title to return: ";
-                cin.ignore();
                 getline(cin, title);
                 myLibrary.returnBook(title);
                 break;
