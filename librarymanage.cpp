@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-const int MAX_BOOKS = 100;
+const int MAX_BOOKS = 25;
 
 // Book class definition
 class Book {
@@ -19,57 +19,71 @@ public:
 
     // Function to borrow a book
     void borrowBook() {
-        if (!isBorrowed) {
-            isBorrowed = true;
-            cout << title << " has been borrowed.\n";
+        if (!this->isBorrowed) {
+            this->isBorrowed = true;
+            cout << this->title << " has been borrowed.\n";
         } else {
-            cout << title << " is already borrowed.\n";
+            cout << this->title << " is already borrowed.\n";
         }
     }
 
     // Function to return a book
     void returnBook() {
-        if (isBorrowed) {
-            isBorrowed = false;
-            cout << title << " has been returned.\n";
+        if (this->isBorrowed) {
+            this->isBorrowed = false;
+            cout << this->title << " has been returned.\n";
         } else {
-            cout << title << " was not borrowed.\n";
+            cout << this->title << " was not borrowed.\n";
         }
     }
 
     // Function to display book details
     void displayDetails() const {
-        if (!title.empty()) {
-            cout << "Title: " << title << ", Author: " << author;
-            cout << (isBorrowed ? " (Borrowed)\n" : " (Available)\n");
+        if (!this->title.empty()) {
+            cout << "Title: " << this->title << ", Author: " << this->author;
+            cout << (this->isBorrowed ? " (Borrowed)\n" : " (Available)\n");
         }
     }
 
     // Function to get the title of the book
     string getTitle() const {
-        return title;
+        return this->title;
     }
 
     // Function to check if the book exists (is not empty)
     bool isBookExists() const {
-        return !title.empty();
+        return !this->title.empty();
     }
 };
 
 // Library class definition
 class Library {
-    Book books[MAX_BOOKS];
+    Book** books;    // Pointer to an array of Book pointers
     int bookCount;
+    int maxBooks;
 
 public:
     // Default constructor
-    Library() : bookCount(0) {}
+    Library(int max) : bookCount(0), maxBooks(max) {
+        this->books = new Book*[this->maxBooks];  // Dynamically allocate array of pointers
+        for (int i = 0; i < this->maxBooks; ++i) {
+            this->books[i] = nullptr;
+        }
+    }
+
+    // Destructor
+    ~Library() {
+        for (int i = 0; i < this->bookCount; ++i) {
+            delete this->books[i];  // Free each allocated Book object
+        }
+        delete[] this->books;  // Free the array of Book pointers
+    }
 
     // Function to add a book to the library
     void addBook(string title, string author) {
-        if (bookCount < MAX_BOOKS) {
-            books[bookCount] = Book(title, author);
-            bookCount++;
+        if (this->bookCount < this->maxBooks) {
+            this->books[this->bookCount] = new Book(title, author);  // Allocate a new Book
+            this->bookCount++;
             cout << "Book added: " << title << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
@@ -78,9 +92,14 @@ public:
 
     // Function to remove a book from the library
     void removeBook(string title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i].getTitle() == title) {
-                books[i] = Book();
+        for (int i = 0; i < this->bookCount; ++i) {
+            if (this->books[i]->getTitle() == title) {
+                delete this->books[i];  // Free the memory of the Book object
+                for (int j = i; j < this->bookCount - 1; ++j) {
+                    this->books[j] = this->books[j + 1];
+                }
+                this->books[this->bookCount - 1] = nullptr;
+                this->bookCount--;
                 cout << "Book removed: " << title << "\n";
                 return;
             }
@@ -91,16 +110,16 @@ public:
     // Function to display all books in the library
     void displayBooks() const {
         cout << "Library Collection:\n";
-        for (int i = 0; i < bookCount; ++i) {
-            books[i].displayDetails();
+        for (int i = 0; i < this->bookCount; ++i) {
+            this->books[i]->displayDetails();
         }
     }
 
     // Function to borrow a book from the library
     void borrowBook(string title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i].getTitle() == title && books[i].isBookExists()) {
-                books[i].borrowBook();
+        for (int i = 0; i < this->bookCount; ++i) {
+            if (this->books[i]->getTitle() == title && this->books[i]->isBookExists()) {
+                this->books[i]->borrowBook();
                 return;
             }
         }
@@ -109,9 +128,9 @@ public:
 
     // Function to return a book to the library
     void returnBook(string title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i].getTitle() == title && books[i].isBookExists()) {
-                books[i].returnBook();
+        for (int i = 0; i < this->bookCount; ++i) {
+            if (this->books[i]->getTitle() == title && this->books[i]->isBookExists()) {
+                this->books[i]->returnBook();
                 return;
             }
         }
@@ -126,8 +145,8 @@ int main() {
     cin >> numBooks;
     cin.ignore();
 
-    // Array of Book objects
-    Book myBooks[numBooks];
+    // Allocate an array of Book objects dynamically
+    Book* myBooks = new Book[numBooks];
 
     // Taking input from the user for each book
     for (int i = 0; i < numBooks; ++i) {
@@ -193,8 +212,11 @@ int main() {
         myBooks[i].displayDetails();
     }
 
+    // Free the dynamically allocated array of Book objects
+    delete[] myBooks;
+
     // Library management system menu
-    Library myLibrary;
+    Library* myLibrary = new Library(25); // Dynamically allocate Library object
     int choice;
 
     do {
@@ -217,25 +239,25 @@ int main() {
                 getline(cin, title);
                 cout << "Enter author name: ";
                 getline(cin, author);
-                myLibrary.addBook(title, author);
+                myLibrary->addBook(title, author);
                 break;
             case 2:
                 cout << "Enter book title to remove: ";
                 getline(cin, title);
-                myLibrary.removeBook(title);
+                myLibrary->removeBook(title);
                 break;
             case 3:
                 cout << "Enter book title to borrow: ";
                 getline(cin, title);
-                myLibrary.borrowBook(title);
+                myLibrary->borrowBook(title);
                 break;
             case 4:
                 cout << "Enter book title to return: ";
                 getline(cin, title);
-                myLibrary.returnBook(title);
+                myLibrary->returnBook(title);
                 break;
             case 5:
-                myLibrary.displayBooks();
+                myLibrary->displayBooks();
                 break;
             case 6:
                 cout << "Exiting the system.\n";
@@ -244,6 +266,9 @@ int main() {
                 cout << "Invalid choice! Please try again.\n";
         }
     } while (choice != 6);
+
+    // Free the dynamically allocated Library object
+    delete myLibrary;
 
     return 0;
 }
