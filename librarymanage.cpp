@@ -9,7 +9,7 @@ class Book {
     string title;
     string author;
     bool isBorrowed;
-    
+
     // Static variable to count the number of Book instances
     static int bookCount;
 
@@ -55,16 +55,6 @@ public:
             cout << "Title: " << this->title << ", Author: " << this->author;
             cout << (this->isBorrowed ? " (Borrowed)\n" : " (Available)\n");
         }
-    }
-
-    // Function to get the title of the book
-    string getTitle() const {
-        return this->title;
-    }
-
-    // Function to check if the book exists (is not empty)
-    bool isBookExists() const {
-        return !this->title.empty();
     }
 
     // Static function to get the count of Book instances
