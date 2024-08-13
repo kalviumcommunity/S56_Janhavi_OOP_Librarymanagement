@@ -29,42 +29,61 @@ public:
         --bookCount;
     }
 
+    // Accessor and mutator for title
+    string getTitle() const {
+        return title;
+    }
+    void setTitle(const string& t) {
+        title = t;
+    }
+
+    // Accessor and mutator for author
+    string getAuthor() const {
+        return author;
+    }
+    void setAuthor(const string& a) {
+        author = a;
+    }
+
+    // Accessor and mutator for isBorrowed
+    bool getIsBorrowed() const {
+        return isBorrowed;
+    }
+    void setIsBorrowed(bool borrowed) {
+        isBorrowed = borrowed;
+    }
+
     // Function to borrow a book
     void borrowBook() {
-        if (!this->isBorrowed) {
-            this->isBorrowed = true;
-            cout << this->title << " has been borrowed.\n";
+        if (!isBorrowed) {
+            isBorrowed = true;
+            cout << title << " has been borrowed.\n";
         } else {
-            cout << this->title << " is already borrowed.\n";
+            cout << title << " is already borrowed.\n";
         }
     }
 
     // Function to return a book
     void returnBook() {
-        if (this->isBorrowed) {
-            this->isBorrowed = false;
-            cout << this->title << " has been returned.\n";
+        if (isBorrowed) {
+            isBorrowed = false;
+            cout << title << " has been returned.\n";
         } else {
-            cout << this->title << " was not borrowed.\n";
+            cout << title << " was not borrowed.\n";
         }
     }
 
     // Function to display book details
     void displayDetails() const {
-        if (!this->title.empty()) {
-            cout << "Title: " << this->title << ", Author: " << this->author;
-            cout << (this->isBorrowed ? " (Borrowed)\n" : " (Available)\n");
+        if (!title.empty()) {
+            cout << "Title: " << title << ", Author: " << author;
+            cout << (isBorrowed ? " (Borrowed)\n" : " (Available)\n");
         }
-    }
-
-    // Function to get the title of the book
-    string getTitle() const {
-        return this->title;
     }
 
     // Function to check if the book exists (is not empty)
     bool isBookExists() const {
-        return !this->title.empty();
+        return !title.empty();
     }
 
     // Static function to get the count of Book instances
@@ -88,27 +107,27 @@ class Library {
 public:
     // Default constructor
     Library(int max) : bookCount(0), maxBooks(max) {
-        this->books = new Book*[this->maxBooks];  // Dynamically allocate array of pointers
-        for (int i = 0; i < this->maxBooks; ++i) {
-            this->books[i] = nullptr;
+        books = new Book*[maxBooks];  // Dynamically allocate array of pointers
+        for (int i = 0; i < maxBooks; ++i) {
+            books[i] = nullptr;
         }
         ++libraryCount;
     }
 
     // Destructor
     ~Library() {
-        for (int i = 0; i < this->bookCount; ++i) {
-            delete this->books[i];  // Free each allocated Book object
+        for (int i = 0; i < bookCount; ++i) {
+            delete books[i];  // Free each allocated Book object
         }
-        delete[] this->books;  // Free the array of Book pointers
+        delete[] books;  // Free the array of Book pointers
         --libraryCount;
     }
 
     // Function to add a book to the library
-    void addBook(string title, string author) {
-        if (this->bookCount < this->maxBooks) {
-            this->books[this->bookCount] = new Book(title, author);  // Allocate a new Book
-            this->bookCount++;
+    void addBook(const string& title, const string& author) {
+        if (bookCount < maxBooks) {
+            books[bookCount] = new Book(title, author);  // Allocate a new Book
+            bookCount++;
             cout << "Book added: " << title << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
@@ -116,15 +135,15 @@ public:
     }
 
     // Function to remove a book from the library
-    void removeBook(string title) {
-        for (int i = 0; i < this->bookCount; ++i) {
-            if (this->books[i]->getTitle() == title) {
-                delete this->books[i];  // Free the memory of the Book object
-                for (int j = i; j < this->bookCount - 1; ++j) {
-                    this->books[j] = this->books[j + 1];
+    void removeBook(const string& title) {
+        for (int i = 0; i < bookCount; ++i) {
+            if (books[i]->getTitle() == title) {
+                delete books[i];  // Free the memory of the Book object
+                for (int j = i; j < bookCount - 1; ++j) {
+                    books[j] = books[j + 1];
                 }
-                this->books[this->bookCount - 1] = nullptr;
-                this->bookCount--;
+                books[bookCount - 1] = nullptr;
+                bookCount--;
                 cout << "Book removed: " << title << "\n";
                 return;
             }
@@ -135,16 +154,16 @@ public:
     // Function to display all books in the library
     void displayBooks() const {
         cout << "Library Collection:\n";
-        for (int i = 0; i < this->bookCount; ++i) {
-            this->books[i]->displayDetails();
+        for (int i = 0; i < bookCount; ++i) {
+            books[i]->displayDetails();
         }
     }
 
     // Function to borrow a book from the library
-    void borrowBook(string title) {
-        for (int i = 0; i < this->bookCount; ++i) {
-            if (this->books[i]->getTitle() == title && this->books[i]->isBookExists()) {
-                this->books[i]->borrowBook();
+    void borrowBook(const string& title) {
+        for (int i = 0; i < bookCount; ++i) {
+            if (books[i]->getTitle() == title && books[i]->isBookExists()) {
+                books[i]->borrowBook();
                 return;
             }
         }
@@ -152,10 +171,10 @@ public:
     }
 
     // Function to return a book to the library
-    void returnBook(string title) {
-        for (int i = 0; i < this->bookCount; ++i) {
-            if (this->books[i]->getTitle() == title && this->books[i]->isBookExists()) {
-                this->books[i]->returnBook();
+    void returnBook(const string& title) {
+        for (int i = 0; i < bookCount; ++i) {
+            if (books[i]->getTitle() == title && books[i]->isBookExists()) {
+                books[i]->returnBook();
                 return;
             }
         }
@@ -190,7 +209,8 @@ int main() {
         cout << "Enter author for book " << i + 1 << ": ";
         getline(cin, author);
 
-        myBooks[i] = Book(title, author);
+        myBooks[i].setTitle(title);
+        myBooks[i].setAuthor(author);
     }
 
     // Display details of each book in the array
