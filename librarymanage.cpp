@@ -75,6 +75,7 @@ public:
     }
 };
 
+
 // Magazine class definition (Hierarchical Inheritance from Item)
 class Magazine : public Item {
 private:
@@ -90,6 +91,20 @@ public:
     // Accessor and mutator for issueNumber
     int getIssueNumber() const { return issueNumber; }
     void setIssueNumber(int issue) { issueNumber = issue; }
+
+    // Function to check if the book exists (is not empty)
+    bool isBookExists() const {
+        return !title.empty();
+    // Function to get the title of the book
+    string getTitle() const {
+        return this->title;
+    }
+
+    // Function to check if the book exists (is not empty)
+    bool isBookExists() const {
+        return !this->title.empty();
+    }
+
 
     // Function to display magazine details
     void displayDetails() const {
