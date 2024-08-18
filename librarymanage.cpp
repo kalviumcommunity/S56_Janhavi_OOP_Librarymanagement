@@ -25,9 +25,16 @@ public:
         ++bookCount;
     }
 
+    // Copy constructor
+    Book(const Book& other) : title(other.title), author(other.author), isBorrowed(other.isBorrowed) {
+        ++bookCount;
+        cout << "Copy constructor called for book: " << title << "\n";
+    }
+
     // Destructor
     ~Book() {
         --bookCount;
+        cout << "Destructor called for book: " << title << "\n";
     }
 
     // Accessor and mutator for title
@@ -124,6 +131,16 @@ public:
         ++libraryCount;
     }
 
+    // Copy constructor (if needed)
+    Library(const Library& other) : bookCount(other.bookCount), maxBooks(other.maxBooks) {
+        books = new Book*[maxBooks];
+        for (int i = 0; i < bookCount; ++i) {
+            books[i] = new Book(*other.books[i]);  // Use Book's copy constructor
+        }
+        ++libraryCount;
+        cout << "Copy constructor called for Library.\n";
+    }
+
     // Destructor
     ~Library() {
         for (int i = 0; i < bookCount; ++i) {
@@ -131,6 +148,7 @@ public:
         }
         delete[] books;  // Free the array of Book pointers
         --libraryCount;
+        cout << "Destructor called for Library.\n";
     }
 
     // Function to add a book to the library
