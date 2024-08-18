@@ -6,6 +6,7 @@ const int MAX_BOOKS = 25;
 
 // Book class definition
 class Book {
+private:
     string title;
     string author;
     bool isBorrowed;
@@ -97,7 +98,8 @@ int Book::bookCount = 0;
 
 // Library class definition
 class Library {
-    Book** books;    
+private:
+    Book** books;
     int bookCount;
     int maxBooks;
 
