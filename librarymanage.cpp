@@ -27,7 +27,7 @@ public:
     void setItemID(int id) { itemID = id; }
 
     // Display function
-    void displayDetails() const {
+    virtual void displayDetails() const {
         cout << "Item ID: " << itemID << ", Title: " << title << ", Author: " << author << "\n";
     }
 };
@@ -69,7 +69,7 @@ public:
     }
 
     // Function to display book details
-    void displayDetails() const {
+    void displayDetails() const override {
         Item::displayDetails();
         cout << (isBorrowed ? " (Borrowed)\n" : " (Available)\n");
     }
@@ -92,37 +92,37 @@ public:
     void setIssueNumber(int issue) { issueNumber = issue; }
 
     // Function to display magazine details
-    void displayDetails() const {
+    void displayDetails() const override {
         Item::displayDetails();
         cout << "Issue Number: " << issueNumber << "\n";
     }
 };
 
-// Library class definition (unchanged)
+// Library class definition
 class Library {
 private:
-    Book** books;
-    int bookCount;
-    int maxBooks;
+    Item** items;      // Changed from Book** to Item** to store both Books and Magazines
+    int itemCount;
+    int maxItems;
 
     // Static variable to count the number of Library instances
     static int libraryCount;
 
 public:
     // Default constructor
-    Library(int max) : bookCount(0), maxBooks(max) {
-        books = new Book*[maxBooks];  // Dynamically allocate array of pointers
-        for (int i = 0; i < maxBooks; ++i) {
-            books[i] = nullptr;
+    Library(int max) : itemCount(0), maxItems(max) {
+        items = new Item*[maxItems];  // Dynamically allocate array of pointers
+        for (int i = 0; i < maxItems; ++i) {
+            items[i] = nullptr;
         }
         ++libraryCount;
     }
 
-    // Copy constructor (if needed)
-    Library(const Library& other) : bookCount(other.bookCount), maxBooks(other.maxBooks) {
-        books = new Book*[maxBooks];
-        for (int i = 0; i < bookCount; ++i) {
-            books[i] = new Book(*other.books[i]);  // Use Book's copy constructor
+    // Copy constructor
+    Library(const Library& other) : itemCount(other.itemCount), maxItems(other.maxItems) {
+        items = new Item*[maxItems];
+        for (int i = 0; i < itemCount; ++i) {
+            items[i] = other.items[i]->clone();  // Use clone method for polymorphic copy
         }
         ++libraryCount;
         cout << "Copy constructor called for Library.\n";
@@ -130,55 +130,67 @@ public:
 
     // Destructor
     ~Library() {
-        for (int i = 0; i < bookCount; ++i) {
-            delete books[i];  // Free each allocated Book object
+        for (int i = 0; i < itemCount; ++i) {
+            delete items[i];  // Free each allocated Item object
         }
-        delete[] books;  // Free the array of Book pointers
+        delete[] items;  // Free the array of Item pointers
         --libraryCount;
         cout << "Destructor called for Library.\n";
     }
 
-    // Function to add a book to the library
-    void addBook(const string& title, const string& author, int id) {
-        if (bookCount < maxBooks) {
-            books[bookCount] = new Book(title, author, id);  // Allocate a new Book
-            bookCount++;
+    // Overloaded function to add a Book to the library
+    void addItem(const string& title, const string& author, int id) {
+        if (itemCount < maxItems) {
+            items[itemCount] = new Book(title, author, id);  // Allocate a new Book
+            itemCount++;
             cout << "Book added: " << title << "\n";
         } else {
             cout << "Library is full, cannot add more books.\n";
         }
     }
 
-    // Function to remove a book from the library
-    void removeBook(const string& title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i]->getTitle() == title) {
-                delete books[i];  // Free the memory of the Book object
-                for (int j = i; j < bookCount - 1; ++j) {
-                    books[j] = books[j + 1];
+    // Overloaded function to add a Magazine to the library
+    void addItem(const string& title, const string& author, int id, int issueNumber) {
+        if (itemCount < maxItems) {
+            items[itemCount] = new Magazine(title, author, id, issueNumber);  // Allocate a new Magazine
+            itemCount++;
+            cout << "Magazine added: " << title << "\n";
+        } else {
+            cout << "Library is full, cannot add more items.\n";
+        }
+    }
+
+    // Function to remove an item from the library
+    void removeItem(const string& title) {
+        for (int i = 0; i < itemCount; ++i) {
+            if (items[i]->getTitle() == title) {
+                delete items[i];  // Free the memory of the Item object
+                for (int j = i; j < itemCount - 1; ++j) {
+                    items[j] = items[j + 1];
                 }
-                books[bookCount - 1] = nullptr;
-                bookCount--;
-                cout << "Book removed: " << title << "\n";
+                items[itemCount - 1] = nullptr;
+                itemCount--;
+                cout << "Item removed: " << title << "\n";
                 return;
             }
         }
-        cout << "Book not found: " << title << "\n";
+        cout << "Item not found: " << title << "\n";
     }
 
-    // Function to display all books in the library
-    void displayBooks() const {
+    // Function to display all items in the library
+    void displayItems() const {
         cout << "Library Collection:\n";
-        for (int i = 0; i < bookCount; ++i) {
-            books[i]->displayDetails();
+        for (int i = 0; i < itemCount; ++i) {
+            items[i]->displayDetails();
         }
     }
 
     // Function to borrow a book from the library
-    void borrowBook(const string& title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i]->getTitle() == title) {
-                books[i]->borrowBook();
+    void borrowItem(const string& title) {
+        for (int i = 0; i < itemCount; ++i) {
+            Book* book = dynamic_cast<Book*>(items[i]);
+            if (book && book->getTitle() == title) {
+                book->borrowBook();
                 return;
             }
         }
@@ -186,10 +198,11 @@ public:
     }
 
     // Function to return a book to the library
-    void returnBook(const string& title) {
-        for (int i = 0; i < bookCount; ++i) {
-            if (books[i]->getTitle() == title) {
-                books[i]->returnBook();
+    void returnItem(const string& title) {
+        for (int i = 0; i < itemCount; ++i) {
+            Book* book = dynamic_cast<Book*>(items[i]);
+            if (book && book->getTitle() == title) {
+                book->returnBook();
                 return;
             }
         }
@@ -212,10 +225,10 @@ int main() {
     do {
         cout << "\nLibrary Management System\n";
         cout << "1. Add Book\n";
-        cout << "2. Remove Book\n";
+        cout << "2. Remove Item\n";
         cout << "3. Borrow Book\n";
         cout << "4. Return Book\n";
-        cout << "5. Display Books\n";
+        cout << "5. Display Items\n";
         cout << "6. Add Magazine\n";
         cout << "7. Exit\n";
         cout << "Enter your choice: ";
@@ -234,25 +247,25 @@ int main() {
                 getline(cin, title);
                 cout << "Enter author name: ";
                 getline(cin, author);
-                myLibrary->addBook(title, author, id);
+                myLibrary->addItem(title, author, id);
                 break;
             case 2:
-                cout << "Enter book title to remove: ";
+                cout << "Enter item title to remove: ";
                 getline(cin, title);
-                myLibrary->removeBook(title);
+                myLibrary->removeItem(title);
                 break;
             case 3:
                 cout << "Enter book title to borrow: ";
                 getline(cin, title);
-                myLibrary->borrowBook(title);
+                myLibrary->borrowItem(title);
                 break;
             case 4:
                 cout << "Enter book title to return: ";
                 getline(cin, title);
-                myLibrary->returnBook(title);
+                myLibrary->returnItem(title);
                 break;
             case 5:
-                myLibrary->displayBooks();
+                myLibrary->displayItems();
                 break;
             case 6:
                 cout << "Enter magazine ID: ";
@@ -266,9 +279,7 @@ int main() {
                 cin >> issueNumber;
                 cin.ignore();
 
-                // Create a Magazine object and display its details
-                Magazine mag(title, author, id, issueNumber);
-                mag.displayDetails();
+                myLibrary->addItem(title, author, id, issueNumber);
                 break;
             case 7:
                 cout << "Exiting the system.\n";
