@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-// Base class: Item
+// Abstract Base class: Item
 class Item {
 protected:
     string title;
@@ -26,10 +26,8 @@ public:
     int getItemID() const { return itemID; }
     void setItemID(int id) { itemID = id; }
 
-    // Display function
-    virtual void displayDetails() const {
-        cout << "Item ID: " << itemID << ", Title: " << title << ", Author: " << author << "\n";
-    }
+    // Pure virtual function
+    virtual void displayDetails() const = 0; // Pure virtual function makes Item an abstract class
 };
 
 // Book class definition (Single Inheritance from Item)
@@ -68,10 +66,9 @@ public:
         }
     }
 
-    // Function to display book details
+    // Override displayDetails to provide implementation specific to Book
     void displayDetails() const override {
-        Item::displayDetails();
-        cout << (isBorrowed ? " (Borrowed)\n" : " (Available)\n");
+        cout << "Item ID: " << itemID << ", Title: " << title << ", Author: " << author << (isBorrowed ? " (Borrowed)\n" : " (Available)\n");
     }
 };
 
@@ -91,17 +88,16 @@ public:
     int getIssueNumber() const { return issueNumber; }
     void setIssueNumber(int issue) { issueNumber = issue; }
 
-    // Function to display magazine details
+    // Override displayDetails to provide implementation specific to Magazine
     void displayDetails() const override {
-        Item::displayDetails();
-        cout << "Issue Number: " << issueNumber << "\n";
+        cout << "Item ID: " << itemID << ", Title: " << title << ", Author: " << author << ", Issue Number: " << issueNumber << "\n";
     }
 };
 
 // Library class definition
 class Library {
 private:
-    Item** items;      // Changed from Book** to Item** to store both Books and Magazines
+    Item** items;      // Use Item** to store both Books and Magazines
     int itemCount;
     int maxItems;
 
@@ -181,7 +177,7 @@ public:
     void displayItems() const {
         cout << "Library Collection:\n";
         for (int i = 0; i < itemCount; ++i) {
-            items[i]->displayDetails();
+            items[i]->displayDetails();  // Call the virtual function
         }
     }
 
