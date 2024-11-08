@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 // Abstract Base class: Item
@@ -23,6 +24,7 @@ public:
     void setItemID(int id) { itemID = id; }
 
     virtual void displayDetails() const = 0;
+    virtual ~Item() = default; // Virtual destructor for proper cleanup
 };
 
 // Book class definition
@@ -68,6 +70,20 @@ public:
     }
 };
 
+// New class: Newspaper, extending Item
+class Newspaper : public Item {
+private:
+    string date;
+
+public:
+    Newspaper(string t, string a, int id, string d) : Item(t, a, id), date(d) {}
+
+    void displayDetails() const override {
+        cout << "Item ID: " << itemID << ", Title: " << title << ", Author: " << author 
+             << ", Date: " << date << "\n";
+    }
+};
+
 // BorrowManager class to handle borrowing functionality
 class BorrowManager {
 public:
@@ -83,55 +99,30 @@ public:
 // Library class definition
 class Library {
 private:
-    Item** items;
-    int itemCount;
-    int maxItems;
+    vector<Item*> items;
     static int libraryCount;
 
 public:
-    Library(int max) : itemCount(0), maxItems(max) {
-        items = new Item*[maxItems];
-        for (int i = 0; i < maxItems; ++i) {
-            items[i] = nullptr;
-        }
-        ++libraryCount;
-    }
+    Library() { ++libraryCount; }
 
     ~Library() {
-        for (int i = 0; i < itemCount; ++i) {
-            delete items[i];
+        for (Item* item : items) {
+            delete item;
         }
-        delete[] items;
         --libraryCount;
         cout << "Destructor called for Library.\n";
     }
 
-    void addItem(const string& title, const string& author, int id) {
-        if (itemCount < maxItems) {
-            items[itemCount++] = new Book(title, author, id);
-            cout << "Book added: " << title << "\n";
-        } else {
-            cout << "Library is full, cannot add more books.\n";
-        }
-    }
-
-    void addItem(const string& title, const string& author, int id, int issueNumber) {
-        if (itemCount < maxItems) {
-            items[itemCount++] = new Magazine(title, author, id, issueNumber);
-            cout << "Magazine added: " << title << "\n";
-        } else {
-            cout << "Library is full, cannot add more items.\n";
-        }
+    void addItem(Item* item) {
+        items.push_back(item);
+        cout << "Item added: " << item->getTitle() << "\n";
     }
 
     void removeItem(const string& title) {
-        for (int i = 0; i < itemCount; ++i) {
-            if (items[i]->getTitle() == title) {
-                delete items[i];
-                for (int j = i; j < itemCount - 1; ++j) {
-                    items[j] = items[j + 1];
-                }
-                items[--itemCount] = nullptr;
+        for (auto it = items.begin(); it != items.end(); ++it) {
+            if ((*it)->getTitle() == title) {
+                delete *it;
+                items.erase(it);
                 cout << "Item removed: " << title << "\n";
                 return;
             }
@@ -141,8 +132,8 @@ public:
 
     void displayItems() const {
         cout << "Library Collection:\n";
-        for (int i = 0; i < itemCount; ++i) {
-            items[i]->displayDetails();
+        for (const Item* item : items) {
+            item->displayDetails();
         }
     }
 
@@ -155,24 +146,25 @@ public:
 int Library::libraryCount = 0;
 
 int main() {
-    Library* myLibrary = new Library(25);
+    Library myLibrary;
     BorrowManager borrowManager;
     int choice;
 
     do {
         cout << "\nLibrary Management System\n";
         cout << "1. Add Book\n";
-        cout << "2. Remove Item\n";
-        cout << "3. Borrow Book\n";
-        cout << "4. Return Book\n";
-        cout << "5. Display Items\n";
-        cout << "6. Add Magazine\n";
-        cout << "7. Exit\n";
+        cout << "2. Add Magazine\n";
+        cout << "3. Add Newspaper\n";
+        cout << "4. Remove Item\n";
+        cout << "5. Borrow Book\n";
+        cout << "6. Return Book\n";
+        cout << "7. Display Items\n";
+        cout << "8. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
         cin.ignore();
 
-        string title, author;
+        string title, author, date;
         int id, issueNumber;
 
         switch (choice) {
@@ -184,27 +176,9 @@ int main() {
                 getline(cin, title);
                 cout << "Enter author name: ";
                 getline(cin, author);
-                myLibrary->addItem(title, author, id);
+                myLibrary.addItem(new Book(title, author, id));
                 break;
             case 2:
-                cout << "Enter item title to remove: ";
-                getline(cin, title);
-                myLibrary->removeItem(title);
-                break;
-            case 3:
-                cout << "Enter book title to borrow: ";
-                getline(cin, title);
-                borrowManager.borrowItem(dynamic_cast<Book*>(myLibrary));  
-                break;
-            case 4:
-                cout << "Enter book title to return: ";
-                getline(cin, title);
-                borrowManager.returnItem(dynamic_cast<Book*>(myLibrary));
-                break;
-            case 5:
-                myLibrary->displayItems();
-                break;
-            case 6:
                 cout << "Enter magazine ID: ";
                 cin >> id;
                 cin.ignore();
@@ -215,16 +189,57 @@ int main() {
                 cout << "Enter issue number: ";
                 cin >> issueNumber;
                 cin.ignore();
-                myLibrary->addItem(title, author, id, issueNumber);
+                myLibrary.addItem(new Magazine(title, author, id, issueNumber));
+                break;
+            case 3:
+                cout << "Enter newspaper ID: ";
+                cin >> id;
+                cin.ignore();
+                cout << "Enter newspaper title: ";
+                getline(cin, title);
+                cout << "Enter author name: ";
+                getline(cin, author);
+                cout << "Enter date: ";
+                getline(cin, date);
+                myLibrary.addItem(new Newspaper(title, author, id, date));
+                break;
+            case 4:
+                cout << "Enter item title to remove: ";
+                getline(cin, title);
+                myLibrary.removeItem(title);
+                break;
+            case 5:
+                cout << "Enter book title to borrow: ";
+                getline(cin, title);
+                for (Item* item : myLibrary.getItems()) {
+                    Book* book = dynamic_cast<Book*>(item);
+                    if (book && book->getTitle() == title) {
+                        borrowManager.borrowItem(book);
+                        break;
+                    }
+                }
+                break;
+            case 6:
+                cout << "Enter book title to return: ";
+                getline(cin, title);
+                for (Item* item : myLibrary.getItems()) {
+                    Book* book = dynamic_cast<Book*>(item);
+                    if (book && book->getTitle() == title) {
+                        borrowManager.returnItem(book);
+                        break;
+                    }
+                }
                 break;
             case 7:
+                myLibrary.displayItems();
+                break;
+            case 8:
                 cout << "Exiting the system.\n";
                 break;
             default:
                 cout << "Invalid choice! Please try again.\n";
         }
-    } while (choice != 7);
+    } while (choice != 8);
 
-    delete myLibrary;
     return 0;
 }
