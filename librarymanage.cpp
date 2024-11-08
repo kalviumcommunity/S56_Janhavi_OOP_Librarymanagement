@@ -42,15 +42,38 @@ public:
              << (getIsBorrowed() ? "Borrowed" : "Available") << "\n";
     }
 };
+// Magazine class definition (Hierarchical Inheritance from Item)
 
 // Magazine class, also Borrowable
 class Magazine : public Borrowable {
+class Magazine : public Item {
+
 private:
     int issueNumber;
 
 public:
-    Magazine(string t, string a, int id, int issue) : Borrowable(t, a, id), issueNumber(issue) {}
 
+    Magazine(string t, string a, int id, int issue) : Borrowable(t, a, id), issueNumber(issue) {}
+    Magazine() : Item(), issueNumber(0) {}
+    Magazine(string t, string a, int id, int issue) : Item(t, a, id), issueNumber(issue) {}
+
+    int getIssueNumber() const { return issueNumber; }
+    void setIssueNumber(int issue) { issueNumber = issue; }
+    // Function to check if the book exists (is not empty)
+    bool isBookExists() const {
+        return !title.empty();
+    // Function to get the title of the book
+    string getTitle() const {
+        return this->title;
+    }
+
+    // Function to check if the book exists (is not empty)
+    bool isBookExists() const {
+        return !this->title.empty();
+    }
+
+
+    // Function to display magazine details
     void displayDetails() const override {
         cout << "Magazine - ID: " << itemID << ", Title: " << title 
              << ", Author: " << author << ", Issue: " << issueNumber 
